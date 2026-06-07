@@ -8,7 +8,7 @@ import {
 import type { LoaderInternal, RequestEvent, RequestHandler } from '../../../runtime/src/types';
 import { defaultLoaderCacheKey, getCachedLoader, resolveCacheKey, setCachedLoader } from '../etag';
 import { performETagMatch, hash, normalizeETag, setETagHeader } from '../etag-hash';
-import { type RequestEventInternal } from '../request-event-core';
+import { RequestEvLoaderFilteredSearch, type RequestEventInternal } from '../request-event-core';
 import { IsQLoader, QLoaderId } from '../request-path';
 
 /**
@@ -45,19 +45,22 @@ export function loaderHandler(routeLoaders: LoaderInternal[]): RequestHandler {
       return;
     }
 
-    // Resolve cache key (if cacheKey is configured). The eTag slot is filled with the explicit eTag
-    // when set; an auto-computed eTag from the response body never participates in the key (cache
-    // lookup runs before the loader, so the body isn't available yet).
-    const filteredSearch = loader.__search
-      ? filterSearchParams(requestEv.url.searchParams, loader.__search)
-      : requestEv.url.search;
-    const defaultKey = defaultLoaderCacheKey(
-      requestEv.url.pathname,
-      filteredSearch,
-      loader.__id,
-      normalizedETag
-    );
-    const cacheKey = resolveCacheKey(loader.__cacheKey, defaultKey, requestEv, normalizedETag);
+    let cacheKey = '';
+    if (loader.__cacheKey) {
+      // Resolve cache key (if cacheKey is configured). The eTag slot is filled with the explicit
+      // eTag when set; an auto-computed eTag from the response body never participates in the key
+      // (cache lookup runs before the loader, so the body isn't available yet).
+      const filteredSearch = loader.__search
+        ? filterSearchParams(requestEv.url.searchParams, loader.__search)
+        : requestEv.url.search;
+      requestEv.sharedMap.set(RequestEvLoaderFilteredSearch, filteredSearch);
+      cacheKey = resolveCacheKey(
+        loader.__cacheKey,
+        defaultLoaderCacheKey,
+        requestEv,
+        normalizedETag
+      );
+    }
 
     // We don't count falsy cacheKeys as valid
     if (cacheKey) {

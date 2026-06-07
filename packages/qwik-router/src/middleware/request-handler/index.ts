@@ -10,6 +10,7 @@ export { mergeHeadersCookies } from './cookie';
 export { ServerError } from './server-error';
 export { AbortMessage, RedirectMessage } from './redirect-handler';
 export { RewriteMessage } from './rewrite-handler';
+export { RequestEvLoaderFilteredSearch } from './request-event-core';
 
 export { clearSsrCache, clearLoaderCache } from './etag';
 export { _TextEncoderStream_polyfill } from './polyfill';

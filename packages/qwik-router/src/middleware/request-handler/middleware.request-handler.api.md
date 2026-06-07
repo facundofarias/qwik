@@ -170,6 +170,9 @@ export interface RequestEventLoader<PLATFORM = QwikRouterPlatform> extends Reque
     resolveValue: ResolveValue;
 }
 
+// @public
+export const RequestEvLoaderFilteredSearch = "@loaderFilteredSearch";
+
 // @public (undocumented)
 export type RequestHandler<PLATFORM = QwikRouterPlatform> = (ev: RequestEvent<PLATFORM>) => Promise<void> | void;
 

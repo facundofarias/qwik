@@ -52,6 +52,13 @@ export const RequestEvSharedNonce = '@nonce';
 export const RequestEvIsRewrite = '@rewrite';
 export const RequestEvShareServerTiming = '@serverTiming';
 export const RequestEvETagCacheKey = '@eTagCacheKey';
+/**
+ * SharedMap key containing the route-loader request search string after applying the loader's
+ * `search` allowlist. Available during route-loader `cacheKey` callbacks.
+ *
+ * @public
+ */
+export const RequestEvLoaderFilteredSearch = '@loaderFilteredSearch';
 export const RequestEvHttpStatusMessage = '@httpStatusMessage';
 
 export function createRequestEventWithDeps(

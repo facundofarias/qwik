@@ -388,6 +388,8 @@ export type ContentModuleETag = string | ((props: DocumentHeadProps) => string |
  *       otherwise `${pathname}|${filteredSearch}|${loaderId}`.
  * - Function: receives the request event and the normalized, unquoted eTag (or an empty string when
  *   none was provided). Return the cache key string, or `null` to skip caching for this request.
+ *   Loader callbacks can read the loader-filtered search string from
+ *   `requestEv.sharedMap.get(RequestEvLoaderFilteredSearch)`.
  *
  * Note: valid cacheKeys are non-empty strings
  *

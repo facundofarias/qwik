@@ -413,8 +413,12 @@ export function createResolveRequestHandlers(deps: ResolveRequestHandlersDeps) {
       if (deps.MAX_CACHE_SIZE <= 0) {
         return;
       }
-      const defaultKey = deps.defaultSsrCacheKey(status, normalizedETag, requestEv.url.pathname);
-      const cacheKey = deps.resolveCacheKey(config.cacheKey, defaultKey, requestEv, normalizedETag);
+      const cacheKey = deps.resolveCacheKey(
+        config.cacheKey,
+        deps.defaultSsrCacheKey,
+        requestEv,
+        normalizedETag
+      );
       if (!cacheKey) {
         return;
       }

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { RequestEvLoaderFilteredSearch } from '..';
 import { FULLPATH_HEADER } from '../../../runtime/src/route-loaders';
 import { getLoaderName, IsQLoader, QLoaderId } from '../request-path';
 import { loaderHandler } from './loader-handler';
@@ -12,7 +13,7 @@ describe('loaderHandler', () => {
       ]),
       headers: new Headers(),
       request: new Request(`http://localhost/products/${getLoaderName('loader-id', 'manifest')}`),
-      url: new URL('http://localhost/products/'),
+      url: new URL('http://localhost/products/?q=shoes&page=2&ignored=true'),
       headersSent: false,
       exited: false,
       cacheControl: vi.fn(),
@@ -61,6 +62,28 @@ describe('loaderHandler', () => {
 
     expect(cacheKey).toHaveBeenCalledWith(requestEv, 'abc');
     expect(requestEv.headers.get('ETag')).toBe('"abc"');
+    expect(requestEv.send).toHaveBeenCalledWith(200, expect.any(String));
+  });
+
+  it('stores loader filtered search on sharedMap before cacheKey callbacks run', async () => {
+    const requestEv = createRequestEv();
+    const cacheKey = vi.fn((ev) => `key:${ev.sharedMap.get(RequestEvLoaderFilteredSearch)}`);
+    const loader = {
+      __id: 'loader-id',
+      __qrl: {
+        call: vi.fn(async () => 'loader-value'),
+      },
+      __validators: undefined,
+      __expires: undefined,
+      __eTag: undefined,
+      __cacheKey: cacheKey,
+      __search: ['page', 'q'],
+    };
+
+    await loaderHandler([loader as any])(requestEv as any);
+
+    expect(cacheKey).toHaveBeenCalledWith(requestEv, '');
+    expect(requestEv.sharedMap.get(RequestEvLoaderFilteredSearch)).toBe('?page=2&q=shoes');
     expect(requestEv.send).toHaveBeenCalledWith(200, expect.any(String));
   });
 

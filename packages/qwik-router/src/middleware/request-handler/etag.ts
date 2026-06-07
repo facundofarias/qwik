@@ -4,6 +4,8 @@ import type {
   DocumentHeadProps,
   RequestEvent,
 } from '@qwik.dev/router';
+import { RequestEvLoaderFilteredSearch } from './request-event-core';
+import { QLoaderId } from './request-path';
 
 export const MAX_CACHE_SIZE: number =
   typeof globalThis.__SSR_CACHE_SIZE__ === 'number' ? globalThis.__SSR_CACHE_SIZE__ : 50;
@@ -51,6 +53,8 @@ function createLruCache() {
 const ssrCache = createLruCache();
 const loaderCache = createLruCache();
 
+type DefaultCacheKeyFn = (requestEv: RequestEvent, eTag: string) => string;
+
 /**
  * Resolve an eTag value from a ContentModuleETag (string, function, or undefined). Returns the eTag
  * string or null.
@@ -69,17 +73,17 @@ export function resolveETag(
 }
 
 /**
- * Resolve a cache key from a CacheKeyFn. Callers pass the default key used when `cacheKey ===
- * true`, so the surface-specific shape (SSR vs loader) is centralized here.
+ * Resolve a cache key from a CacheKeyFn. The default key callback is only called when `cacheKey ===
+ * true`.
  */
 export function resolveCacheKey(
   cacheKeyExport: CacheKeyFn | undefined,
-  defaultKey: string,
+  defaultKey: DefaultCacheKeyFn,
   requestEv: RequestEvent,
   eTag: string
 ): string {
   if (cacheKeyExport === true) {
-    return defaultKey;
+    return defaultKey(requestEv, eTag);
   }
   if (typeof cacheKeyExport !== 'function') {
     return '';
@@ -88,18 +92,17 @@ export function resolveCacheKey(
 }
 
 /** Build the default SSR cache key. eTag slot is dropped when no eTag was resolved. */
-export function defaultSsrCacheKey(status: number, eTag: string, pathname: string): string {
+export function defaultSsrCacheKey(requestEv: RequestEvent, eTag: string): string {
+  const status = requestEv.status();
+  const pathname = requestEv.url.pathname;
   return eTag ? `${status}|${eTag}|${pathname}` : `${status}|${pathname}`;
 }
 
 /** Build the default loader cache key. eTag slot is dropped when no eTag was resolved. */
-export function defaultLoaderCacheKey(
-  pathname: string,
-  filteredSearch: string,
-  loaderId: string,
-  eTag: string
-): string {
-  const base = `${pathname}|${filteredSearch}|${loaderId}`;
+export function defaultLoaderCacheKey(requestEv: RequestEvent, eTag: string): string {
+  const filteredSearch = requestEv.sharedMap.get(RequestEvLoaderFilteredSearch) as string;
+  const loaderId = requestEv.sharedMap.get(QLoaderId) as string;
+  const base = `${requestEv.url.pathname}|${filteredSearch}|${loaderId}`;
   return eTag ? `${base}|${eTag}` : base;
 }
 

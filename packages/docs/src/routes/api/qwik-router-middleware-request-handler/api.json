@@ -391,6 +391,20 @@
       "mdFile": "router.requesteventloader.md"
     },
     {
+      "name": "RequestEvLoaderFilteredSearch",
+      "id": "requestevloaderfilteredsearch",
+      "hierarchy": [
+        {
+          "name": "RequestEvLoaderFilteredSearch",
+          "id": "requestevloaderfilteredsearch"
+        }
+      ],
+      "kind": "Variable",
+      "content": "SharedMap key containing the route-loader request search string after applying the loader's `search` allowlist. Available during route-loader `cacheKey` callbacks.\n\n\n```typescript\nRequestEvLoaderFilteredSearch = \"@loaderFilteredSearch\"\n```",
+      "editUrl": "https://github.com/QwikDev/qwik/tree/main/packages/qwik-router/src/middleware/request-handler/request-event-core.ts",
+      "mdFile": "router.requestevloaderfilteredsearch.md"
+    },
+    {
       "name": "requestHandler",
       "id": "requesthandler",
       "hierarchy": [

@@ -201,6 +201,8 @@ Adds an `ETag` header on the loader response and honors `If-None-Match`. Two mod
 
 Qwik normalizes eTag values by stripping weak-form `W/` prefixes, quotes, and forbidden chars, then sends a strong `ETag` header. Values that normalize to an empty string are treated as "no eTag provided".
 
+When a loader `cacheKey` callback needs the loader-filtered search string, read `ev.sharedMap.get(RequestEvLoaderFilteredSearch)` using the exported key from `@qwik.dev/router/middleware/request-handler`.
+
 ```tsx title="src/routes/subscription/index.tsx"
 export const useSubscription = routeLoader$(
   async (ev) => {
