@@ -370,7 +370,7 @@ const createRouteLoaderSignal = (loader: LoaderInternal, routeLoaderCtx: RouteLo
 };
 
 /** Build a sorted, stable search string from only the allowed param names. */
-const filterSearchParams = (params: URLSearchParams, allowed: string[]): string => {
+export const filterSearchParams = (params: URLSearchParams, allowed: string[]): string => {
   const filtered = new URLSearchParams();
   for (let i = 0; i < allowed.length; i++) {
     const name = allowed[i];
@@ -388,6 +388,7 @@ const getLoaderOptions = (rest: (LoaderOptions | DataValidator)[]) => {
   let expires: number | undefined;
   let poll: boolean | undefined;
   let eTag: LoaderOptions['eTag'] | undefined;
+  let cacheKey: LoaderOptions['cacheKey'] | undefined;
   let search: string[] | undefined;
   let allowStale = true;
   const validators: DataValidator[] = [];
@@ -413,6 +414,9 @@ const getLoaderOptions = (rest: (LoaderOptions | DataValidator)[]) => {
         if ('eTag' in options) {
           eTag = options.eTag;
         }
+        if ('cacheKey' in options) {
+          cacheKey = options.cacheKey;
+        }
         if (options.search) {
           search = options.search;
         } else if (globalThis.__STRICT_LOADERS__) {
@@ -433,6 +437,7 @@ const getLoaderOptions = (rest: (LoaderOptions | DataValidator)[]) => {
     expires,
     poll,
     eTag,
+    cacheKey,
     search,
     allowStale,
   };
@@ -677,7 +682,7 @@ export const routeLoaderQrl = ((
   loaderQrl: QRL<(event: RequestEventLoader) => unknown>,
   ...rest: (LoaderOptions | DataValidator)[]
 ): LoaderInternal => {
-  const { validators, serializationStrategy, expires, poll, eTag, search, allowStale } =
+  const { validators, serializationStrategy, expires, poll, eTag, cacheKey, search, allowStale } =
     getLoaderOptions(rest);
 
   function loader() {
@@ -699,6 +704,7 @@ export const routeLoaderQrl = ((
   loader.__expires = expires ?? 120_000; // 2 minutes
   loader.__poll = poll ?? false;
   loader.__eTag = eTag;
+  loader.__cacheKey = cacheKey;
   loader.__search = search;
   loader.__allowStale = allowStale;
   Object.freeze(loader);

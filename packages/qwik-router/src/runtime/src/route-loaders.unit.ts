@@ -72,6 +72,7 @@ function createLoader(id: string, fn: (thisArg: unknown, ev: any) => unknown): L
     __expires: 0,
     __poll: false,
     __eTag: undefined,
+    __cacheKey: undefined,
     __search: undefined,
     __allowStale: true,
   } as any;
